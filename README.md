@@ -488,6 +488,64 @@ This is a template/reference implementation. To extend:
 - **Kalshi Discord**: Community support and dev channel
 - **Anthropic API**: https://docs.anthropic.com
 
+## Code Structure
+
+Target Project Structure
+Kalshi-Council/
+├── .env.example
+├── requirements.txt
+├── package.json
+│
+├── backend/
+│   ├── main.py                     # FastAPI app entrypoint
+│   ├── config.py                   # env vars, OpenRouter config
+│   ├── database.py                 # SQLAlchemy engine & session
+│   ├── models.py                   # DB models
+│   ├── schemas.py                  # Pydantic schemas
+│   ├── routers/
+│   │   ├── markets.py              # /api/markets endpoints
+│   │   ├── predictions.py          # /api/predictions endpoints
+│   │   └── analytics.py            # /api/analytics endpoints
+│   ├── services/
+│   │   ├── openrouter.py           # OpenRouter LLM client
+│   │   ├── market_fetcher.py       # Kalshi API integration
+│   │   ├── researcher.py           # Market analyzer + web research
+│   │   ├── council.py              # LLM council members
+│   │   ├── consensus.py            # Consensus engine
+│   │   └── betting.py              # Betting decision module
+│   └── workers/
+│       ├── result_checker.py       # Polls resolved markets, records outcomes
+│       └── scheduler.py            # Runs council sessions on schedule
+│
+├── frontend/
+│   ├── index.html
+│   ├── vite.config.ts
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── api/                    # API client functions
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx       # Overview: recent predictions, win rate, P&L
+│   │   │   ├── Predictions.tsx     # Prediction history table
+│   │   │   ├── PredictionDetail.tsx# Single prediction deep-dive
+│   │   │   └── Analytics.tsx       # Model accuracy, calibration charts
+│   │   └── components/
+│       ├── migrations/
+│       │   └── 001_initial.sql
+│       └── db/
+│           └── kalshi_council.db   # SQLite (gitignored)
+Feature Breakdown (8 Features for Parallel Agents)
+Dependency Graph
+Feature 1 (OpenRouter + Config) ───┬──→ Feature 5 (Migrate Core Services)
+                                   └──→ Feature 3 (API: Markets/Predictions) ──→ Feature 7 (Frontend: Dashboard)
+
+Feature 2 (DB Models) ─────────────┬──→ Feature 3 (API: Markets/Predictions)
+                                   ├──→ Feature 4 (API: Analytics) ──→ Feature 8 (Frontend: Analytics)
+                                   └──→ Feature 6 (Result Checker Worker)
+Parallel wave 1 (no deps, all start immediately): Features 1, 2, 7 (with mock data), 8 (with mock data)
+Parallel wave 2 (after 1+2): Features 3, 4, 5, 6
+Wave 3 (after 3+4): Wire frontend to real API (Features 7, 8 finalize)
+
+
 ## 📄 License
 
 Educational and research purposes. See full disclaimer in code.
@@ -497,3 +555,4 @@ Educational and research purposes. See full disclaimer in code.
 **Built with**: Anthropic Claude API, Kalshi Prediction Markets API, Python
 
 **Last Updated**: January 2025
+
